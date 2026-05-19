@@ -1,12 +1,13 @@
 {
   "name": "taneraslanai-bot",
   "version": "1.0.0",
+  "description": "Taner Aslan AI Yol Yardım Botu",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
   "dependencies": {
     "node-telegram-bot-api": "^0.66.0",
-    "groq-sdk": "^0.9.0"
+    "@google/generative-ai": "^0.21.0"
   }
 }
