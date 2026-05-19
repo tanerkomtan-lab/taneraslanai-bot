@@ -1,16 +1,17 @@
+
 const TelegramBot = require('node-telegram-bot-api');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-if (!TELEGRAM_TOKEN || !GEMINI_API_KEY) {
-  console.error('HATA: TELEGRAM_TOKEN ve GEMINI_API_KEY gerekli!');
+if (!TELEGRAM_TOKEN || !GROQ_API_KEY) {
+  console.error('HATA: TELEGRAM_TOKEN ve GROQ_API_KEY gerekli!');
   process.exit(1);
 }
 
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const groq = new Groq({ apiKey: GROQ_API_KEY });
 
 const SYSTEM_PROMPT = `Sen Taner Aslan Yol Hizmetleri'nin yapay zeka asistanısın. Adın TanerAslanAI.
 
@@ -84,32 +85,36 @@ bot.on('message', async (msg) => {
   try {
     await bot.sendChatAction(chatId, 'typing');
 
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      systemInstruction: SYSTEM_PROMPT,
+    userHistories[chatId].push({
+      role: 'user',
+      content: userMessage
     });
 
-    const chat = model.startChat({
-      history: userHistories[chatId],
-    });
-
-    const result = await chat.sendMessage(userMessage);
-    const response = result.response.text();
-
-    userHistories[chatId].push(
-      { role: 'user', parts: [{ text: userMessage }] },
-      { role: 'model', parts: [{ text: response }] }
-    );
-
-    if (userHistories[chatId].length > 30) {
-      userHistories[chatId] = userHistories[chatId].slice(-30);
+    if (userHistories[chatId].length > 20) {
+      userHistories[chatId] = userHistories[chatId].slice(-20);
     }
 
-    await bot.sendMessage(chatId, response);
+    const response = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...userHistories[chatId]
+      ],
+      max_tokens: 1024,
+    });
+
+    const reply = response.choices[0]?.message?.content || 'Üzgünüm, bir hata oluştu.';
+
+    userHistories[chatId].push({
+      role: 'assistant',
+      content: reply
+    });
+
+    await bot.sendMessage(chatId, reply);
   } catch (error) {
     console.error('Hata:', error.message);
     await bot.sendMessage(chatId, '⚠️ Bir hata oluştu, lütfen tekrar deneyin.');
   }
 });
 
-console.log('✅ TanerAslanAI Bot çalışıyor...');
+console.log('✅ TanerAslanAI Bot (Groq) çalışıyor...');
