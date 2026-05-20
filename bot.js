@@ -40,17 +40,21 @@ Kısa ve net cevap ver. Yanıtların başına uygun emoji ekle.`;
 
 const userHistories = {};
 
-const WELCOME_MESSAGE = `🚗 Merhaba! Ben *Taner Aslan AI* Yol Asistanıyım.
+const WELCOME_MESSAGE = `🚗 🦁 *TANER ASLAN AI* 🦁
+━━━━━━━━━━━━━━━━━━
+🚗 *Avrupa & Türkiye Yol Yardım Hattı*
 
-Avrupa–Türkiye seyahatinde yardıma ihtiyacın olursa buradayım!
+Hoş geldiniz! Yolculuğunuzda 7/24 yanınızdayım.
 
-✅ Araç arızası rehberliği
-✅ Kaza durumunda ne yapılır
+✅ Araç arızası & acil durum
+✅ Lastik, akü, benzin, motor
 ✅ Ülkeye göre acil numaralar
-✅ Güzergah bilgisi
-✅ Türkçe, Almanca, İngilizce destek
+✅ Güzergah & mola yerleri
+🇩🇪 🇦🇹 🇭🇺 🇷🇸 🇧🇬 🇹🇷
 
-Nasıl yardımcı olabilirim?`;
+💬 *Sorunuzu yazın, hemen yardım edelim!*
+━━━━━━━━━━━━━━━━━━
+🦁 *Taner Aslan Yol Hizmetleri*
 
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, WELCOME_MESSAGE, { parse_mode: 'Markdown' });
